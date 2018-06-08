@@ -7,177 +7,259 @@ typedef struct
 	char nome_cliente[52];
 	char cpf_cliente[13];
 	int numero_conta;
-	char senha[10];
-	double saldo;
-
+    int senha_cliente;
+    double saldo;
 } CONTA;
 
 typedef struct
 {
-	int numero_conta;
-	double valor_da_conta;
+    int numero_conta;
+    double movimento;
 
 } MOVIMENTACAO;
 
-CONTA criaConta(){
-
-    CONTA c;
-    fgets(c.nome_cliente, sizeof(c.nome_cliente), stdin);
-    fgets(c.cpf_cliente, sizeof(c.cpf_cliente), stdin);
-    scanf("%d\n", &c.numero_conta);
-    fgets(c.senha, sizeof(c.senha), stdin);
-    scanf("%lf\n", &c.saldo);
-
-    return c;
-
+void clear_screen()
+{
+    system("clear");
 }
 
-MOVIMENTACAO criaMovimentacao(){
+CONTA le_CONTA()
+{
+    CONTA a;
+    printf("\tNOME DO TITULAR:\n");
+    setbuf(stdin, NULL);
+    fgets(a.nome_cliente, sizeof(a.nome_cliente), stdin);
+    a.nome_cliente[strlen(a.nome_cliente) - 1] = '\0';
+    printf("\tCPF DO CLIENTE:\n");
+    setbuf(stdin, NULL);
+    fgets(a.cpf_cliente, sizeof(a.cpf_cliente), stdin);
+    a.cpf_cliente[strlen(a.cpf_cliente) - 1] = '\0';
+    setbuf(stdin, NULL);
+    printf("\tNUMERO DA CONTA:\n");
+    scanf("%d", &a.numero_conta);
+    setbuf(stdin, NULL);
+    printf("\tSENHA (MAXIMO DE 8 DIGITOS):\n");
+    scanf("%d", &a.senha_cliente);
+    setbuf(stdin, NULL);
+    //system("PAUSE");
+    return a;
+    clear_screen();
+}
 
+MOVIMENTACAO le_movimentacao()
+{
     MOVIMENTACAO m;
-
-    scanf("%d", m.numero_conta);
-    scanf("%f", m.valor_da_conta);
+    scanf("%d", &m.numero_conta);
+    scanf("%lf", &m.movimento);
 
     return m;
-
-}
-
-CONTA* insereConta(CONTA *c, int *n, CONTA nova_conta){
-
-    if(*n > 0){
-        c = (CONTA*)realloc(c, (*n)*sizeof(CONTA));
-        c[*n] = nova_conta;
-        (*n++);
-    }else{
-        c = (CONTA*)malloc(sizeof(CONTA));
-        c[*n] = nova_conta;
-        //return c;
-    }
-    if(!c){
-        printf("ERRO: Nao foi possivel alocar memoria!\n");
-        return 0;
-    }
-
-    return c;
-
-}
-
-CONTA* removeConta(CONTA *c, int *n, int numero_da_conta){
-
-
-
 }
 
 void menu()
 {
-	printf("\n*-*-*-*-*-*MENU-*-*-*-*-*-*\n");
-	printf("\n\t1 - SACAR\n");
-	printf("\n\t2 - DEPOSITAR\n");
-	printf("\n\t3 - TRANSFERIR\n");
-	printf("\n\t4 - SALDO\n");
-	printf("\n\t5 - EXTRATO\n");
-	printf("\n\t6 - CRIAR CONTA\n");
-	printf("\n\t8 - MOSTRAR CONTAS\n");
-	printf("\n\t0 - FINALIZAR\n");
-	printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
+    printf("\n*-*-*-*-*-*MENU-*-*-*-*-*-*\n");
+    printf("\n\t1 - SACAR\n");
+    printf("\n\t2 - DEPOSITAR\n");
+    printf("\n\t3 - TRANSFERIR\n");
+    printf("\n\t4 - SALDO\n");
+    printf("\n\t5 - EXTRATO\n");
+    printf("\n\t6 - CRIAR CONTA\n");
+    printf("\n\t7 - REMOVER CONTA\n");
+    printf("\n\t8 - MOSTRAR CONTAS\n");
+    printf("\n\t0 - FINALIZAR\n");
+    printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");
 }
 
-void clear_screen()
+CONTA* inserir_CONTA(CONTA *vetor_contas, int *quantidade_contas, CONTA nova)
 {
-	system("cls");
+    vetor_contas= (CONTA*) realloc(vetor_contas, (*quantidade_contas + 1) * sizeof(CONTA));
+	if (vetor_contas == 0)
+    {
+        printf("Erro: nao foi possivel alocar memoria.");
+        return 0;
+    }
+    vetor_contas[*quantidade_contas] = nova;
+    (*quantidade_contas)++;
+    return vetor_contas;
+}
+
+CONTA* remove_CONTA(CONTA *vetor_contas, int *quantidade_contas, int numero_conta)
+{
+    int i;
+    for (i = 0; i < *quantidade_contas; i++){
+        if (vetor_contas[i].numero_conta == numero_conta){
+            vetor_contas[i] = vetor_contas[*quantidade_contas - 1]; // copia o ultimo p/ posicao a ser removida
+            vetor_contas = (CONTA*) realloc(vetor_contas, (*quantidade_contas - 1) * sizeof(CONTA));
+        if (vetor_contas != 0)
+           (*quantidade_contas)--;
+        	break;
+        }
+	}
+    return vetor_contas;
+}
+
+MOVIMENTACAO* insere_Movimentacao(MOVIMENTACAO *vetor_movi, int *qtd_movi, MOVIMENTACAO nova_movi){
+    vetor_movi = (MOVIMENTACAO*) realloc(vetor_movi, (*qtd_movi + 1) * sizeof(MOVIMENTACAO));
+    if(vetor_movi == 0){
+        printf("Erro: Não foi possivel alocar memoria.");
+        return 0;
+    }
+
+    vetor_movi[*qtd_movi] = nova_movi;
+    (*qtd_movi)++;
+    return vetor_movi;
+
+}
+
+CONTA* remove_Movimentacao(MOVIMENTACAO *vetor_movi, int *qtd_movi, int numero_conta){
+    int i;
+    for(i = 0; i < *qtd_movi; i++){
+        if(vetor_movi[i].numero_conta == numero_conta){
+            vetor_movi[i] = vetor_movi[*qtd_movi - 1];
+            vetor_movi = (MOVIMENTACAO*) realloc(vetor_movi, (*qtd_movi - 1) * sizeof(MOVIMENTACAO));
+            if(vetor_movi != 0){
+                (*qtd_movi)--;
+                break;
+            }
+        }
+        return vetor_movi;
+    }
 }
 
 void new_operation(char *operacao)
 {
-	int new_operation;
-	printf("DESEJA REALIZAR UMA NOVA OPERACAO ? \n(1 - sim | 2 - nao)\n");
-	scanf("%i", &new_operation);
+    int new_operation;
+    printf("DESEJA REALIZAR UMA NOVA OPERA��O ? \n(1 - sim | 2 - n�o)\n");
+    scanf("%i", &new_operation);
 
-	if(new_operation == 1)
-	{
+    if(new_operation == 1)
+    {
 		clear_screen();
-		menu();
-	}
-	else if(new_operation == 2)
-	{
-		*operacao = '0';
-		clear_screen();
-		printf("BYE!\n");
-	}
-	else
-	{
-		printf("OPERACAO INVALIDA!\n");
-	}
+        menu();
+    }
+    else if(new_operation == 2)
+    {
+        *operacao = '0';
+        clear_screen();
+        printf("\tOBRIGADO, VOLTE SEMPRE!\n");
+    }
+    else
+    {
+        printf("OPERA��O INVALIDA!\n");
+    }
 }
 
-int main(int argc, char *argv[])
+int checar_senha(CONTA *vetor_contas, int *quantidade_contas, int *num_conta, int *senha)
 {
-    int qtd = 0, i = 0, n = 0;
-    CONTA *c = 0;
-    CONTA nova_conta;
-	char operacao;
+    int achou = 1;
+    for (int i = 0; i < *quantidade_contas; i++){
+        if(*senha == vetor_contas[i].senha_cliente){
+            achou = 1;
+        }else{
+            achou = 0;
+        }
+    }
+    if (achou){
+        return 1;
+    }else{
+        return 0;
+    }
+}
 
-	menu();
+int main()
+{
+    char operacao;
+    int quantidade_contas = 0, i, num_conta, senha;
+    CONTA *vetor_contas = 0;
+    CONTA a;
 
-	while(operacao != '0')
-	{
-		scanf("\n%c", &operacao);
+    menu();
 
-		switch(operacao)
-		{
-			case '1':
-				//sacar();
-				printf("SAQUE\n");
-				new_operation(&operacao);
-				break;
-			case '2':
-				//depositar();
-				printf("DEPOSITO\n");
-				new_operation(&operacao);
-				break;
-			case '3':
-				//transferir();
-				printf("TRANSFERENCIA\n");
-				new_operation(&operacao);
-				break;
-			case '4':
-				//saldo();
-				printf("SALDO\n");
-				new_operation(&operacao);
-				break;
-			case '5':
-				//extrato
-				printf("EXTRATO\n");
-				new_operation(&operacao);
-				break;
+    while(operacao != '0')
+    {
+        scanf("\n%c", &operacao);
+
+        switch(operacao)
+        {
+            case '1':
+            	//sacar();
+                printf("\tSAQUE\n");
+                printf("\n\tDIGITE O NUMERO DA CONTA: ");
+                scanf("%d", &num_conta);
+                printf("\n\tDIGITE A SENHA DE SEGURANCA: \n");
+                scanf("%d", &senha);
+                fflush(stdin);
+                //funcao checar senha
+                if (checar_senha(vetor_contas, &quantidade_contas, &num_conta, &senha)){
+                    clear_screen();
+                    printf("\tDigite o valor do saque:\n");
+                    printf("SAQUE EFETUADO!");
+                    new_operation(&operacao);
+                }else{
+                    fflush(stdin);
+                    printf("ERRO: SENHA INCORRETA\n");
+                    new_operation(&operacao);
+                }
+                break;
+            case '2':
+                //depositar();
+                printf("DEPOSITO\n");
+                new_operation(&operacao);
+                break;
+            case '3':
+                //transferir();
+                printf("TRANSFERENCIA\n");
+                new_operation(&operacao);
+                break;
+            case '4':
+                //saldo();
+        		printf("SALDO\n");
+                new_operation(&operacao);
+            	break;
+            case '5':
+                //extrato
+                printf("EXTRATO\n");
+                new_operation(&operacao);
+                break;
             case '6':
                 clear_screen();
-                //printf("Insira quantas contas ir� criar: ");
-                //scanf("%d", &qtd);
-                //for(i = 0; i < qtd; i++){
-                    nova_conta = criaConta();
-                    c = insereConta(c, &n, nova_conta);
-                //}
-                fflush(stdin);
+                setbuf(stdin, NULL);
+                a = le_CONTA();
+                vetor_contas = inserir_CONTA(vetor_contas, &quantidade_contas, a);
                 new_operation(&operacao);
+                setbuf(stdin, NULL);
+                break;
+            case '7':
+                clear_screen();
+                setbuf(stdin, NULL);
+                printf("Numero da conta a ser removida: ");
+                scanf("%d", &num_conta);
+                for(i = 0; i < quantidade_contas; i++){
+                    if(num_conta == vetor_contas[i].numero_conta){
+                        vetor_contas = remove_CONTA(vetor_contas, &quantidade_contas, num_conta);
+                    }
+                }
+                printf("CONTA REMOVIDA COM SUCESSO!\n");
+                new_operation(&operacao);
+                setbuf(stdin, NULL);
                 break;
             case '8':
                 clear_screen();
-                for(i = 0; i < n; i++){
-                    printf("%s%s%d\n%s%.1f\n", c[i].nome_cliente, c[i].cpf_cliente, c[i].numero_conta, c[i].senha, c[i].saldo);
-                }
+                setbuf(stdin, NULL);
+				for (i = 0; i < quantidade_contas; i++)
+					printf("Nome: %s\nCPF: %s\nNumero da Conta: %d\nSenha:%d\n\n", vetor_contas[i].nome_cliente, vetor_contas[i].cpf_cliente, vetor_contas[i].numero_conta, vetor_contas[i].senha_cliente);
+                new_operation(&operacao);
+                setbuf(stdin, NULL);
+				break;
+            case '0':
+                printf("BYE!\n");
+    			break;
+        	default:
+                printf("\nOPERACAO INVALIDA!\n");
                 new_operation(&operacao);
                 break;
-			case '0':
-			    clear_screen();
-				printf("BYE!\n");
-				break;
-			default:
-				printf("OPERAÇAO INVALIDA!\n");
-				break;
-		}
-	}
-
-	return 0;
+            }
+    	}
+    return 0;
 }
+
